@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Skills Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f0f0f0;
+    }
+
+    .game-container {
+      max-width: 600px;
+      width: 100%;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-top: 0;
+    }
+
+    .question {
+      font-size: 24px;
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+    }
+
+    input[type="text"] {
+      width: 100px;
+      padding: 10px;
+      font-size: 18px;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result-message {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .incorrect {
+      color: red;
+    }
+
+    .start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .start-screen input {
+      margin-bottom: 20px;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .difficulty-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .difficulty-screen button {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="start-screen" id="start-screen">
+    <h1>Math Skills Game</h1>
+    <input type="text" id="player-name" placeholder="Enter your name" />
+    <button id="start-btn">Start Game</button>
+  </div>
+
+  <div class="difficulty-screen" id="difficulty-screen">
+    <h1>Select Difficulty</h1>
+    <button id="easy-btn">Easy (Addition, Subtraction)</button>
+    <button id="hard-btn">Hard (Multiplication, Division)</button>
+  </div>
+
+  <div class="game-container" id="game-container" style="display: none;">
+    <h1 id="player-header"></h1>
+    <div class="question" id="question"></div>
+    <input type="text" id="answer-input" placeholder="Enter your answer" />
+    <button id="submit-btn">Submit</button>
+    <div id="result-message"></div>
+  </div>
+
+  <script>
+    const easyQuestions = [
+      { a: 5, b: 3, op: '+' },
+      { a: 10, b: 4, op: '-' },
+      { a: 7, b: 2, op: '+' },
+      { a: 15, b: 8, op: '-' },
+      { a: 6, b: 9, op: '+' }
+    ];
+
+    const hardQuestions = [
+      { a: 20, b: 11, op: '*' },
+      { a: 18, b: 6, op: '/' },
+      { a: 25, b: 13, op: '*' },
+      { a: 42, b: 7, op: '/' },
+      { a: 15, b: 5, op: '*' }
+    ];
+
+    let currentQuestionIndex = 0;
+    let correctAnswers = 0;
+    let playerName = '';
+    let isHardMode = false;
+
+    document.getElementById('start-btn').addEventListener('click', moveToSelectDifficulty);
+    document.getElementById('easy-btn').addEventListener('click', startEasyGame);
+    document.getElementById('hard-btn').addEventListener('click', startHardGame);
+
+    function moveToSelectDifficulty() {
+      playerName = document.getElementById('player-name').value;
+      if (playerName.trim() !== '') {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('difficulty-screen').style.display = 'flex';
+      } else {
+        alert('Please enter your name to start the game.');
+      }
+    }
+
+    function startEasyGame() {
+      isHardMode = false;
+      document.getElementById('difficulty-screen').style.display = 'none';
+      document.getElementById('game-container').style.display = 'block';
+      document.getElementById('player-header').textContent = `Welcome, ${playerName}!`;
+      displayNextQuestion();
+    }
+
+    function startHardGame() {
+      isHardMode = true;
+      document.getElementById('difficulty-screen').style.display = 'none';
+      document.getElementById('game-container').style.display = 'block';
+      document.getElementById('player-header').textContent = `Welcome, ${playerName}!`;
+      displayNextQuestion();
+    }
+
+    function displayNextQuestion() {
+      const questions = isHardMode ? hardQuestions : easyQuestions;
+      const currentQuestion = questions[currentQuestionIndex];
+      const questionElement = document.getElementById('question');
+      questionElement.textContent = `${currentQuestion.a} ${currentQuestion.op} ${currentQuestion.b} = ?`;
+      questionElement.style.borderColor = '#ccc';
+
+      const answerInput = document.getElementById('answer-input');
+      answerInput.value = '';
+      answerInput.focus();
+    }
+
+    function checkAnswer() {
+      const answerInput = document.getElementById('answer-input');
+      const questions = isHardMode ? hardQuestions : easyQuestions;
+      const currentQuestion = questions[currentQuestionIndex];
+      let result;
+
+      switch (currentQuestion.op) {
+        case '+':
+          result = currentQuestion.a + currentQuestion.b;
+          break;
+        case '-':
+          result = currentQuestion.a - currentQuestion.b;
+          break;
+        case '*':
+          result = currentQuestion.a * currentQuestion.b;
+          break;
+        case '/':
+          result = currentQuestion.a / currentQuestion.b;
+          break;
+      }
+
+      if (parseFloat(answerInput.value) === result) {
+        document.getElementById('result-message').textContent = 'Correct!';
+        document.getElementById('result-message').classList.add('correct');
+        document.getElementById('result-message').classList.remove('incorrect');
+        correctAnswers++;
+        if (correctAnswers === 5) {
+          alert(`Congratulations, ${playerName}! You answered all 5 questions correctly.`);
+          return;
+        }
+        currentQuestionIndex++;
+        displayNextQuestion();
+      } else {
+        document.getElementById('result-message').textContent = 'Incorrect. The correct answer is ' + result + '.';
+        document.getElementById('result-message').classList.add('incorrect');
+        document.getElementById('result-message').classList.remove('correct');
+        document.getElementById('question').style.borderColor = 'red';
+      }
+    }
+
+    document.getElementById('submit-btn').addEventListener('click', checkAnswer);
+  </script>
+</body>
+</html>
